@@ -26,7 +26,7 @@ const particleOptions = {
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  boxes: [],
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -51,21 +51,31 @@ class App extends Component {
   }
 
   calculateFaceLocation = (data) => {
-    const clarifaiFaceData = data.outputs[0].data.regions[0].region_info.bounding_box;
+
+    const clarifaiFaceData = data.outputs[0].data.regions;
+
     const image = document.getElementById('inputImage');
     const width = Number(image.width);
     const height = Number(image.height);
 
-    return {
-      leftCol: clarifaiFaceData.left_col * width,
-      rightCol: width - (clarifaiFaceData.right_col * width),
-      topRow: clarifaiFaceData.top_row * height,
-      bottomRow: height - (clarifaiFaceData.bottom_row * height)
-    }
+    var boxes = clarifaiFaceData.map(data => {
+
+      const box = data.region_info.bounding_box;
+
+      return {
+        leftCol: box.left_col * width,
+        rightCol: width - (box.right_col * width),
+        topRow: box.top_row * height,
+        bottomRow: height - (box.bottom_row * height)
+      }
+
+    });
+
+    return boxes;
   }
 
-  displayFaceBox = (box) => {
-    this.setState({ box: box });
+  displayFaceBox = (boxes) => {
+    this.setState({ boxes: boxes });
   }
 
   onButtonClick = () => {
@@ -78,7 +88,7 @@ class App extends Component {
         input: this.state.input,
       })
     })
-    .then(response => response.json())
+      .then(response => response.json())
       .then((response) => {
         fetch("https://frozen-reef-74841.herokuapp.com/image", {
           method: 'put',
@@ -105,7 +115,7 @@ class App extends Component {
   }
 
   render() {
-    const { isSignedIn, imageUrl, box, route, user } = this.state;
+    const { isSignedIn, imageUrl, boxes, route, user } = this.state;
     return (
       <div className="App">
         <Particles className="particles"
@@ -118,7 +128,7 @@ class App extends Component {
             <Logo />
             <Rank userName={user.name} entries={user.entries} />
             <ImgaeLinkForm onInputChange={this.onInputChange} onButtonClick={this.onButtonClick} />
-            <FaceRecognition imageUrl={imageUrl} box={box} />
+            <FaceRecognition imageUrl={imageUrl} boxes={boxes} />
           </div>
           :
           (
