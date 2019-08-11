@@ -71,7 +71,7 @@ class App extends Component {
   onButtonClick = () => {
     this.setState({ imageUrl: this.state.input });
 
-    fetch("http://localhost:8080/imageUrl", {
+    fetch("https://frozen-reef-74841.herokuapp.com/imageUrl", {
       method: 'post',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -80,7 +80,7 @@ class App extends Component {
     })
     .then(response => response.json())
       .then((response) => {
-        fetch("http://localhost:8080/image", {
+        fetch("https://frozen-reef-74841.herokuapp.com/image", {
           method: 'put',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
